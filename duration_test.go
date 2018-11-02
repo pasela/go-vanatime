@@ -6,7 +6,7 @@ import (
 	vanatime "github.com/pasela/go-vanatime"
 )
 
-func TestMicroseconds(t *testing.T) {
+func TestDurationMicroseconds(t *testing.T) {
 	d := 100 * vanatime.Microsecond
 	got := d.Microseconds()
 	want := int64(100)
@@ -15,7 +15,7 @@ func TestMicroseconds(t *testing.T) {
 	}
 }
 
-func TestSeconds(t *testing.T) {
+func TestDurationSeconds(t *testing.T) {
 	d := 100*vanatime.Second + 50*vanatime.Microsecond
 	got := d.Seconds()
 	want := float64(100.000050)
@@ -24,7 +24,7 @@ func TestSeconds(t *testing.T) {
 	}
 }
 
-func TestMinutes(t *testing.T) {
+func TestDurationMinutes(t *testing.T) {
 	d := 3*vanatime.Minute + 30*vanatime.Second + 300*vanatime.Microsecond
 	got := d.Minutes()
 	want := float64(3.500005)
@@ -33,7 +33,7 @@ func TestMinutes(t *testing.T) {
 	}
 }
 
-func TestHours(t *testing.T) {
+func TestDurationHours(t *testing.T) {
 	d := 3*vanatime.Hour + 30*vanatime.Minute + 45*vanatime.Second + 900*vanatime.Microsecond
 	got := d.Hours()
 	want := float64(3.51250025)
@@ -42,7 +42,7 @@ func TestHours(t *testing.T) {
 	}
 }
 
-func TestTruncate(t *testing.T) {
+func TestDurationTruncate(t *testing.T) {
 	d := 3*vanatime.Hour + 30*vanatime.Minute + 45*vanatime.Second + 900*vanatime.Microsecond
 
 	cases := [][]vanatime.Duration{
@@ -61,7 +61,7 @@ func TestTruncate(t *testing.T) {
 	}
 }
 
-func TestRound(t *testing.T) {
+func TestDurationRound(t *testing.T) {
 	d := 3*vanatime.Hour + 30*vanatime.Minute + 45*vanatime.Second + 900*vanatime.Microsecond
 
 	cases := [][]vanatime.Duration{
@@ -80,7 +80,7 @@ func TestRound(t *testing.T) {
 	}
 }
 
-func TestString(t *testing.T) {
+func TestDurationString(t *testing.T) {
 	cases := []struct {
 		D    vanatime.Duration
 		Want string

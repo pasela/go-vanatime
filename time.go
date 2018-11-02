@@ -116,6 +116,29 @@ func (t Time) AddDate(years int, months int, days int) Time {
 	return Date(year+years, month+months, day+days, hour, min, sec, t.Microsecond())
 }
 
+func lessThanHalf(x, y Duration) bool {
+	return uint64(x)+uint64(x) < uint64(y)
+}
+
+func (t Time) Truncate(d Duration) Time {
+	if d <= 0 {
+		return t
+	}
+	r := Duration(t.time % int64(d))
+	return t.Add(-r)
+}
+
+func (t Time) Round(d Duration) Time {
+	if d <= 0 {
+		return t
+	}
+	r := Duration(t.time % int64(d))
+	if lessThanHalf(r, d) {
+		return t.Add(-r)
+	}
+	return t.Add(d - r)
+}
+
 func (t Time) Earth() time.Time {
 	return vana2earth(t)
 }
