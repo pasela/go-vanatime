@@ -121,6 +121,16 @@ func (t Time) Equal(u Time) bool {
 	return t.time == u.time
 }
 
+func (t Time) Add(d Duration) Time {
+	return Time{t.time + int64(d)}
+}
+
+func (t Time) AddDate(years int, months int, days int) Time {
+	year, month, day, _ := t.Date()
+	hour, min, sec := t.Clock()
+	return Date(year+years, month+months, day+days, hour, min, sec, t.Microsecond())
+}
+
 func (t Time) Earth() time.Time {
 	return vana2earth(t)
 }

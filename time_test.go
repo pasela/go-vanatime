@@ -66,7 +66,7 @@ func TestEarthVariation(t *testing.T) {
 		vs := formatVanatime(vt)
 
 		if vs != pattern[1] {
-			t.Errorf(`[%d]: want "%s", got "%s"`, i, pattern[1], vs)
+			t.Errorf(`[%d]: want "%s", but "%s"`, i, pattern[1], vs)
 		}
 	}
 }
@@ -90,7 +90,30 @@ func TestVanaVariation(t *testing.T) {
 		}
 
 		if !et.Equal(want) {
-			t.Errorf(`[%d]: want "%s", got "%s"`, i, want, et)
+			t.Errorf(`[%d]: want "%s", but "%s"`, i, want, et)
 		}
+	}
+}
+
+func TestAdd(t *testing.T) {
+	vt := vanatime.Date(1000, 3, 1, 0, 0, 0, 0)
+	want := vanatime.Date(1000, 3, 8, 12, 34, 56, 0)
+	got := vt.Add(7*vanatime.Day +
+		12*vanatime.Hour +
+		34*vanatime.Minute +
+		56*vanatime.Second)
+
+	if !got.Equal(want) {
+		t.Errorf(`want "%v", but "%v"`, want, got)
+	}
+}
+
+func TestAddDate(t *testing.T) {
+	vt := vanatime.Date(1000, 3, 1, 0, 0, 0, 0)
+	want := vanatime.Date(1001, 5, 4, 0, 0, 0, 0)
+	got := vt.AddDate(1, 2, 3)
+
+	if !got.Equal(want) {
+		t.Errorf(`want "%v", but "%v"`, want, got)
 	}
 }
