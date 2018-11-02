@@ -43,22 +43,12 @@ import "time"
 //     C.E. 2047/10/21(Win) 15:37:30
 
 const (
-	Microsecond int64 = 1
-	Millisecond       = 1000 * Microsecond
-	Second            = 1000 * Millisecond
-	Minute            = 60 * Second
-	Hour              = 60 * Minute
-	Day               = 24 * Hour
-	Week              = 8 * Day
-	Month             = 30 * Day
-	Year              = 360 * Day
-
-	TimeScale         = 25 // Vana'diel time goes 25 times faster than the Earth
-	BaseYear          = 886
-	BaseTime          = (BaseYear * Year) / TimeScale
-	EarthBaseTime     = 1009810800 * Second // 2002-01-01 00:00:00.000 JST
-	VanaEarthDiffTime = BaseTime - EarthBaseTime
-	MoonCycleDays     = 84 // Vana'diel moon cycle lasts 84 days
+	TimeScale         int   = 25 // Vana'diel time goes 25 times faster than the Earth
+	BaseYear          int   = 886
+	BaseTime          int64 = (int64(BaseYear) * int64(Year)) / int64(TimeScale)
+	EarthBaseTime     int64 = 1009810800 * int64(Second) // 2002-01-01 00:00:00.000 JST
+	VanaEarthDiffTime int64 = BaseTime - EarthBaseTime
+	MoonCycleDays     int   = 84 // Vana'diel moon cycle lasts 84 days
 )
 
 // A Time represents an instant in Vana'diel time with microsecond precision.
@@ -80,12 +70,12 @@ func Date(year, mon, day, hour, min, sec, usec int) Time {
 	year, mon = norm(year, mon, 12)
 
 	return Time{
-		(int64((year - 1)) * Year) +
-			(int64((mon - 1)) * Month) +
-			(int64((day - 1)) * Day) +
-			(int64(hour) * Hour) +
-			(int64(min) * Minute) +
-			(int64(sec) * Second) +
+		(int64((year - 1)) * int64(Year)) +
+			(int64((mon - 1)) * int64(Month)) +
+			(int64((day - 1)) * int64(Day)) +
+			(int64(hour) * int64(Hour)) +
+			(int64(min) * int64(Minute)) +
+			(int64(sec) * int64(Second)) +
 			int64(usec),
 	}
 }
@@ -116,14 +106,59 @@ func (t Time) Equal(u Time) bool {
 	return t.time == u.time
 }
 
+func (t Time) Add(d Duration) Time {
+	return Time{t.time + int64(d)}
+}
+
+func (t Time) AddDate(years int, months int, days int) Time {
+	year, month, day, _ := t.Date()
+	hour, min, sec := t.Clock()
+	return Date(year+years, month+months, day+days, hour, min, sec, t.Microsecond())
+}
+
+func lessThanHalf(x, y Duration) bool {
+	return uint64(x)+uint64(x) < uint64(y)
+}
+
+func (t Time) Truncate(d Duration) Time {
+	if d <= 0 {
+		return t
+	}
+	r := Duration(t.time % int64(d))
+	return t.Add(-r)
+}
+
+func (t Time) Round(d Duration) Time {
+	if d <= 0 {
+		return t
+	}
+	r := Duration(t.time % int64(d))
+	if lessThanHalf(r, d) {
+		return t.Add(-r)
+	}
+	return t.Add(d - r)
+}
+
+func (t Time) Sub(u Time) Duration {
+	d := Duration(t.time - u.time)
+	switch {
+	case u.Add(d).Equal(t):
+		return d
+	case t.Before(u):
+		return minDuration
+	default:
+		return maxDuration
+	}
+}
+
 func (t Time) Earth() time.Time {
 	return vana2earth(t)
 }
 
 func (t Time) Date() (year, mon, day, yday int) {
-	year = int(t.time/Year) + 1
-	mon = int(t.time%Year/Month) + 1
-	day = int(t.time%Month/Day) + 1
+	year = int(t.time/int64(Year)) + 1
+	mon = int(t.time%int64(Year)/int64(Month)) + 1
+	day = int(t.time%int64(Month)/int64(Day)) + 1
 	yday = (mon-1)*30 + day
 	return
 }
@@ -149,14 +184,14 @@ func (t Time) YearDay() int {
 }
 
 func (t Time) Weekday() Weekday {
-	wday := int(t.time % Week / Day)
+	wday := int(t.time % int64(Week) / int64(Day))
 	return Weekday(wday)
 }
 
 func (t Time) Clock() (hour, min, sec int) {
-	hour = int(t.time % Day / Hour)
-	min = int(t.time % Hour / Minute)
-	sec = int(t.time % Minute / Second)
+	hour = int(t.time % int64(Day) / int64(Hour))
+	min = int(t.time % int64(Hour) / int64(Minute))
+	sec = int(t.time % int64(Minute) / int64(Second))
 	return
 }
 
@@ -176,7 +211,7 @@ func (t Time) Second() int {
 }
 
 func (t Time) Microsecond() int {
-	return int(t.time % Second)
+	return int(t.time % int64(Second))
 }
 
 func (t Time) Int64() int64 {
@@ -184,8 +219,8 @@ func (t Time) Int64() int64 {
 }
 
 func (t Time) Moon() Moon {
-	var days int = int(t.time / Day)
-	timeOfMoon := (((int64(days) + 12) % 7) * Day) + (t.time % Day)
+	var days int = int(t.time / int64(Day))
+	timeOfMoon := (((int64(days) + 12) % 7) * int64(Day)) + (t.time % int64(Day))
 
 	return Moon{
 		days:       days,
@@ -202,16 +237,16 @@ func earth2vana(etime time.Time) Time {
 }
 
 func e2v(etime int64) int64 {
-	return (etime+VanaEarthDiffTime)*TimeScale - Year
+	return (etime+VanaEarthDiffTime)*int64(TimeScale) - int64(Year)
 }
 
 func vana2earth(vtime Time) time.Time {
 	usec := v2e(vtime.time)
-	return time.Unix(usec/Second, usec%Second)
+	return time.Unix(usec/int64(Second), usec%int64(Second))
 }
 
 func v2e(vtime int64) int64 {
-	return ((vtime + Year) / TimeScale) - VanaEarthDiffTime
+	return ((vtime + int64(Year)) / int64(TimeScale)) - VanaEarthDiffTime
 }
 
 // from https://golang.org/src/time/time.go

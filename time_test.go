@@ -66,7 +66,7 @@ func TestEarthVariation(t *testing.T) {
 		vs := formatVanatime(vt)
 
 		if vs != pattern[1] {
-			t.Errorf(`[%d]: want "%s", got "%s"`, i, pattern[1], vs)
+			t.Errorf(`[%d]: want "%s", but "%s"`, i, pattern[1], vs)
 		}
 	}
 }
@@ -90,7 +90,101 @@ func TestVanaVariation(t *testing.T) {
 		}
 
 		if !et.Equal(want) {
-			t.Errorf(`[%d]: want "%s", got "%s"`, i, want, et)
+			t.Errorf(`[%d]: want "%s", but "%s"`, i, want, et)
+		}
+	}
+}
+
+func TestAdd(t *testing.T) {
+	vt := vanatime.Date(1000, 3, 1, 0, 0, 0, 0)
+	want := vanatime.Date(1000, 3, 8, 12, 34, 56, 0)
+	got := vt.Add(7*vanatime.Day +
+		12*vanatime.Hour +
+		34*vanatime.Minute +
+		56*vanatime.Second)
+
+	if !got.Equal(want) {
+		t.Errorf(`want "%v", but "%v"`, want, got)
+	}
+}
+
+func TestAddDate(t *testing.T) {
+	vt := vanatime.Date(1000, 3, 1, 0, 0, 0, 0)
+	want := vanatime.Date(1001, 5, 4, 0, 0, 0, 0)
+	got := vt.AddDate(1, 2, 3)
+
+	if !got.Equal(want) {
+		t.Errorf(`want "%v", but "%v"`, want, got)
+	}
+}
+
+func TestTruncate(t *testing.T) {
+	vt := vanatime.Date(650, 3, 11, 12, 34, 56, 0)
+	patterns := []struct {
+		D    vanatime.Duration
+		Want vanatime.Time
+	}{
+		{vanatime.Hour, vanatime.Date(650, 3, 11, 12, 0, 0, 0)},
+		{2 * vanatime.Hour, vanatime.Date(650, 3, 11, 12, 0, 0, 0)},
+		{5 * vanatime.Hour, vanatime.Date(650, 3, 11, 10, 0, 0, 0)},
+		{30 * vanatime.Minute, vanatime.Date(650, 3, 11, 12, 30, 0, 0)},
+	}
+
+	for i, pattern := range patterns {
+		got := vt.Truncate(pattern.D)
+
+		if !got.Equal(pattern.Want) {
+			t.Errorf(`[%d]: want "%s", but "%s"`, i, pattern.Want, got)
+		}
+	}
+}
+
+func TestRound(t *testing.T) {
+	vt := vanatime.Date(650, 3, 11, 12, 34, 56, 0)
+	patterns := []struct {
+		D    vanatime.Duration
+		Want vanatime.Time
+	}{
+		{vanatime.Hour, vanatime.Date(650, 3, 11, 13, 0, 0, 0)},
+		{2 * vanatime.Hour, vanatime.Date(650, 3, 11, 12, 0, 0, 0)},
+		{5 * vanatime.Hour, vanatime.Date(650, 3, 11, 15, 0, 0, 0)},
+		{30 * vanatime.Minute, vanatime.Date(650, 3, 11, 12, 30, 0, 0)},
+		{20 * vanatime.Minute, vanatime.Date(650, 3, 11, 12, 40, 0, 0)},
+		{15 * vanatime.Minute, vanatime.Date(650, 3, 11, 12, 30, 0, 0)},
+		{10 * vanatime.Minute, vanatime.Date(650, 3, 11, 12, 30, 0, 0)},
+		{10 * vanatime.Second, vanatime.Date(650, 3, 11, 12, 35, 0, 0)},
+	}
+
+	for i, pattern := range patterns {
+		got := vt.Round(pattern.D)
+
+		if !got.Equal(pattern.Want) {
+			t.Errorf(`[%d]: want "%s", but "%s"`, i, pattern.Want, got)
+		}
+	}
+}
+
+func TestSub(t *testing.T) {
+	vt := vanatime.Date(650, 3, 11, 12, 34, 56, 0)
+	patterns := []struct {
+		T    vanatime.Time
+		Want vanatime.Duration
+	}{
+		{vanatime.Date(650, 3, 11, 12, 34, 55, 999500), 500 * vanatime.Microsecond},
+		{vanatime.Date(650, 3, 11, 12, 34, 55, 0), vanatime.Second},
+		{vanatime.Date(650, 3, 11, 12, 32, 56, 0), 2 * vanatime.Minute},
+		{vanatime.Date(650, 3, 11, 11, 34, 56, 0), vanatime.Hour},
+		{vanatime.Date(650, 3, 10, 12, 34, 56, 0), vanatime.Day},
+		{vanatime.Date(650, 2, 11, 12, 34, 56, 0), vanatime.Month},
+		{vanatime.Date(649, 3, 11, 12, 34, 56, 0), vanatime.Year},
+		{vanatime.Date(649, 2, 10, 11, 33, 55, 0), vanatime.Year + vanatime.Month + vanatime.Day + vanatime.Hour + vanatime.Minute + vanatime.Second},
+	}
+
+	for i, pattern := range patterns {
+		got := vt.Sub(pattern.T)
+
+		if got != pattern.Want {
+			t.Errorf(`[%d]: want "%s", but "%s"`, i, pattern.Want, got)
 		}
 	}
 }
