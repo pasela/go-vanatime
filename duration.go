@@ -26,6 +26,14 @@ const (
 	Year                 = 360 * Day
 )
 
+func Since(t Time) Duration {
+	return Now().Sub(t)
+}
+
+func Until(t Time) Duration {
+	return t.Sub(Now())
+}
+
 func (d Duration) Microseconds() int64 {
 	return int64(d)
 }

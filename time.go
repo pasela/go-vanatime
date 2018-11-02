@@ -139,6 +139,18 @@ func (t Time) Round(d Duration) Time {
 	return t.Add(d - r)
 }
 
+func (t Time) Sub(u Time) Duration {
+	d := Duration(t.time - u.time)
+	switch {
+	case u.Add(d).Equal(t):
+		return d
+	case t.Before(u):
+		return minDuration
+	default:
+		return maxDuration
+	}
+}
+
 func (t Time) Earth() time.Time {
 	return vana2earth(t)
 }

@@ -163,3 +163,28 @@ func TestRound(t *testing.T) {
 		}
 	}
 }
+
+func TestSub(t *testing.T) {
+	vt := vanatime.Date(650, 3, 11, 12, 34, 56, 0)
+	patterns := []struct {
+		T    vanatime.Time
+		Want vanatime.Duration
+	}{
+		{vanatime.Date(650, 3, 11, 12, 34, 55, 999500), 500 * vanatime.Microsecond},
+		{vanatime.Date(650, 3, 11, 12, 34, 55, 0), vanatime.Second},
+		{vanatime.Date(650, 3, 11, 12, 32, 56, 0), 2 * vanatime.Minute},
+		{vanatime.Date(650, 3, 11, 11, 34, 56, 0), vanatime.Hour},
+		{vanatime.Date(650, 3, 10, 12, 34, 56, 0), vanatime.Day},
+		{vanatime.Date(650, 2, 11, 12, 34, 56, 0), vanatime.Month},
+		{vanatime.Date(649, 3, 11, 12, 34, 56, 0), vanatime.Year},
+		{vanatime.Date(649, 2, 10, 11, 33, 55, 0), vanatime.Year + vanatime.Month + vanatime.Day + vanatime.Hour + vanatime.Minute + vanatime.Second},
+	}
+
+	for i, pattern := range patterns {
+		got := vt.Sub(pattern.T)
+
+		if got != pattern.Want {
+			t.Errorf(`[%d]: want "%s", but "%s"`, i, pattern.Want, got)
+		}
+	}
+}
