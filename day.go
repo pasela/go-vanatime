@@ -48,10 +48,12 @@ var dayNames = map[string][8]string{
 	},
 }
 
+// String returns the English name of the day ("Firesday", "Earthsday", ...).
 func (w Weekday) String() string {
 	return defaultDayNames[w]
 }
 
+// String returns the name of the day by specified locale.
 func (w Weekday) StringLocale(locale string) string {
 	if names, ok := dayNames[locale]; ok {
 		return names[w]
