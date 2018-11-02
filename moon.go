@@ -133,7 +133,7 @@ type Moon struct {
 }
 
 func (m Moon) Percent() int {
-	percent := math.Round(float64((m.days+8)%MoonCycleDays) * (200.0 / MoonCycleDays))
+	percent := math.Round(float64((m.days+8)%MoonCycleDays) * (200.0 / float64(MoonCycleDays)))
 	if percent > 100.0 {
 		percent = 200.0 - percent
 	}
