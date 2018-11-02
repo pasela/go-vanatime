@@ -42,21 +42,6 @@ import "time"
 //     A.D. 2047/10/21(Mon) 15:37:30 UTC
 //     C.E. 2047/10/21(Win) 15:37:30
 
-// A Duration represents the elapsed vana'diel time between two instants as an int64 microsecond count.
-type Duration int64
-
-const (
-	Microsecond Duration = 1
-	Millisecond          = 1000 * Microsecond
-	Second               = 1000 * Millisecond
-	Minute               = 60 * Second
-	Hour                 = 60 * Minute
-	Day                  = 24 * Hour
-	Week                 = 8 * Day
-	Month                = 30 * Day
-	Year                 = 360 * Day
-)
-
 const (
 	TimeScale         int   = 25 // Vana'diel time goes 25 times faster than the Earth
 	BaseYear          int   = 886
