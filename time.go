@@ -269,7 +269,8 @@ func (t Time) Moon() Moon {
 // String returns the time formatted using the format string.
 //	"%Y-%m-%d %H:%M:%S"
 func (t Time) String() string {
-	return t.Strftime("%Y-%m-%d %H:%M:%S")
+	m := t.Moon()
+	return t.Strftime("%Y-%m-%d %H:%M:%S") + " " + t.Weekday().String() + " " + m.String()
 }
 
 func earth2vana(etime time.Time) Time {

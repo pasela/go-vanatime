@@ -1,6 +1,9 @@
 package vanatime
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 // MOON_BASE_TIME  = 0 - (ONE_DAY * 12) # Start of New moon (10%)
 //
@@ -146,4 +149,8 @@ func (m Moon) Phase() MoonPhase {
 
 func (m Moon) TimeOfMoon() int64 {
 	return m.timeOfMoon
+}
+
+func (m Moon) String() string {
+	return fmt.Sprintf("%s (%d%%)", m.Phase(), m.Percent())
 }
