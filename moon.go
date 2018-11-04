@@ -3,6 +3,8 @@ package vanatime
 import (
 	"fmt"
 	"math"
+
+	"golang.org/x/text/language"
 )
 
 // MOON_BASE_TIME  = 0 - (ONE_DAY * 12) # Start of New moon (10%)
@@ -88,8 +90,8 @@ var defaultMoonNames = [...]string{
 	"Waning Crescent",
 }
 
-var moonNames = map[string][12]string{
-	"en": [12]string{
+var moonNames = map[language.Tag][12]string{
+	language.English: [12]string{
 		"New Moon",
 		"Waxing Crescent",
 		"Waxing Crescent",
@@ -103,7 +105,7 @@ var moonNames = map[string][12]string{
 		"Waning Crescent",
 		"Waning Crescent",
 	},
-	"ja": [12]string{
+	language.Japanese: [12]string{
 		"新月",
 		"三日月",
 		"七日月",
@@ -119,12 +121,24 @@ var moonNames = map[string][12]string{
 	},
 }
 
+var moonLangs language.Matcher
+
+func init() {
+	var keys []language.Tag
+	for k, _ := range moonNames {
+		keys = append(keys, k)
+	}
+	moonLangs = language.NewMatcher(keys)
+}
+
 func (m MoonPhase) String() string {
 	return defaultMoonNames[m]
 }
 
 func (m MoonPhase) StringLocale(locale string) string {
-	if names, ok := moonNames[locale]; ok {
+	userTag := language.Make(locale)
+	tag, _, _ := moonLangs.Match(userTag)
+	if names, ok := moonNames[tag]; ok {
 		return names[m]
 	}
 	return m.String()
