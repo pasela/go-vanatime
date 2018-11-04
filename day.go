@@ -1,5 +1,7 @@
 package vanatime
 
+import "golang.org/x/text/language"
+
 // A Weekday specifies a day of the week in Vana'diel (Firesday = 0, ...).
 type Weekday int
 
@@ -25,8 +27,8 @@ var defaultDayNames = [...]string{
 	"Darksday",
 }
 
-var dayNames = map[string][8]string{
-	"en": [8]string{
+var dayNames = map[language.Tag][8]string{
+	language.English: [8]string{
 		"Firesday",
 		"Earthsday",
 		"Watersday",
@@ -36,7 +38,7 @@ var dayNames = map[string][8]string{
 		"Lightsday",
 		"Darksday",
 	},
-	"ja": [8]string{
+	language.Japanese: [8]string{
 		"火曜日",
 		"土曜日",
 		"水曜日",
@@ -48,6 +50,16 @@ var dayNames = map[string][8]string{
 	},
 }
 
+var dayLangs language.Matcher
+
+func init() {
+	var keys []language.Tag
+	for k, _ := range dayNames {
+		keys = append(keys, k)
+	}
+	dayLangs = language.NewMatcher(keys)
+}
+
 // String returns the English name of the day ("Firesday", "Earthsday", ...).
 func (w Weekday) String() string {
 	return defaultDayNames[w]
@@ -55,7 +67,9 @@ func (w Weekday) String() string {
 
 // String returns the name of the day by specified locale.
 func (w Weekday) StringLocale(locale string) string {
-	if names, ok := dayNames[locale]; ok {
+	userTag := language.Make(locale)
+	tag, _, _ := dayLangs.Match(userTag)
+	if names, ok := dayNames[tag]; ok {
 		return names[w]
 	}
 	return w.String()
