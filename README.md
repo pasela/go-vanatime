@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.com/pasela/go-vanatime.svg?branch=master)](https://travis-ci.com/pasela/go-vanatime)
+[![GoDoc](https://godoc.org/github.com/pasela/go-vanatime?status.svg)](https://godoc.org/github.com/pasela/go-vanatime)
+
 # go-vanatime
 
 Go library for dealing with Vana'diel time from Final Fantasy XI.
