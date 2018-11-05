@@ -28,7 +28,14 @@ func main() {
 		vt.Moon().Phase().StringLocale("ja"),
 	)
 
-	// to the earth time
+	// To the earth time
 	et = vt.Earth()
 	fmt.Println(et)
+
+	// Add 3 days
+	vt = vt.Add(3 * vanatime.Day)
+	fmt.Println(vt)
+
+	// Formatting
+	fmt.Println(vt.Strftime("%Y/%m/%d %H:%M:%S"))
 }
