@@ -67,9 +67,13 @@ func (t *Ticker) start() {
 // Stop does not close the channel, to prevent a concurrent goroutine
 // reading from the channel from seeing an erroneous "tick".
 func (t *Ticker) Stop() {
-	t.earthTicker.Stop()
-	close(t.stop)
-	t.wg.Wait()
+	if t.earthTicker != nil {
+		t.earthTicker.Stop()
+		if t.stop != nil {
+			close(t.stop)
+			t.wg.Wait()
+		}
+	}
 }
 
 // Tick is a convenience wrapper for NewTicker providing access to the ticking

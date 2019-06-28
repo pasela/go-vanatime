@@ -90,9 +90,13 @@ func (t *Timer) start() {
 // If the caller needs to know whether f is completed, it must coordinate
 // with f explicitly.
 func (t *Timer) Stop() {
-	t.earthTimer.Stop()
-	close(t.stop)
-	t.wg.Wait()
+	if t.earthTimer != nil {
+		t.earthTimer.Stop()
+		if t.stop != nil {
+			close(t.stop)
+			t.wg.Wait()
+		}
+	}
 }
 
 // Reset changes the timer to expire after duration d.
