@@ -3,7 +3,7 @@ package vanatime_test
 import (
 	"testing"
 
-	vanatime "github.com/pasela/go-vanatime"
+	"github.com/pasela/go-vanatime"
 )
 
 func TestDurationMicroseconds(t *testing.T) {

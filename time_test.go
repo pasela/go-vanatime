@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	vanatime "github.com/pasela/go-vanatime"
+	"github.com/pasela/go-vanatime"
 )
 
 var locJA *time.Location

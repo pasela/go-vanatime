@@ -104,3 +104,7 @@ func Since(t Time) Duration {
 func Until(t Time) Duration {
 	return t.Sub(Now())
 }
+
+func vd2ed(d Duration) time.Duration {
+	return time.Duration(int64(d*1000) / int64(TimeScale))
+}
