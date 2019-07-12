@@ -89,14 +89,17 @@ func (t *Timer) start() {
 // Stop does not wait for f to complete before returning.
 // If the caller needs to know whether f is completed, it must coordinate
 // with f explicitly.
-func (t *Timer) Stop() {
+func (t *Timer) Stop() bool {
+	active := false
 	if t.earthTimer != nil {
-		t.earthTimer.Stop()
+		active = t.earthTimer.Stop()
 		if t.stop != nil {
 			close(t.stop)
 			t.wg.Wait()
 		}
 	}
+
+	return active
 }
 
 // Reset changes the timer to expire after duration d.
