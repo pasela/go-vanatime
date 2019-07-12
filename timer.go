@@ -38,7 +38,6 @@ func newTimer(d Duration, f timerFunc) *Timer {
 		c:          c,
 		f:          f,
 		earthTimer: earthTimer,
-		stop:       make(chan struct{}),
 	}
 
 	t.start()
@@ -47,6 +46,7 @@ func newTimer(d Duration, f timerFunc) *Timer {
 }
 
 func (t *Timer) start() {
+	t.stop = make(chan struct{})
 	t.wg.Add(1)
 	go func() {
 		defer t.wg.Done()
@@ -95,6 +95,7 @@ func (t *Timer) Stop() bool {
 		active = t.earthTimer.Stop()
 		if t.stop != nil {
 			close(t.stop)
+			t.stop = nil
 			t.wg.Wait()
 		}
 	}
@@ -127,7 +128,9 @@ func (t *Timer) Stop() bool {
 // Reset should always be invoked on stopped or expired channels, as described above.
 // The return value exists to preserve compatibility with existing programs.
 func (t *Timer) Reset(d Duration) bool {
-	return t.earthTimer.Reset(vd2ed(d))
+	r := t.earthTimer.Reset(vd2ed(d))
+	t.start()
+	return r
 }
 
 // AfterFunc waits for the duration to elapse and then calls f in its own
